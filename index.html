@@ -1,0 +1,165 @@
+<html>
+<head>
+  <script>
+    
+    window.onload=function()
+    {
+     let inp = document.getElementById('newTask')
+     inp.addEventListener('change', addNew)
+    }
+    function addNew(e)
+    {
+    let value = e.target.value;
+    e.target.value ="";
+
+    list =e.target.parentNode.parentNode;
+    li = document.createElement('li');
+
+    text =document.createElement('div');
+    text.innerText= value;
+    li.append(text);
+    
+    statusa =document.createElement('div');
+    statusa.innerText= "?";
+    li.append(statusa);
+    
+    btnOk=document.createElement('button');
+    btnOk.innerText = "ok";
+    btnOk.addEventListener('click', completed)
+    li.append(btnOk);
+    
+    btnCan =document.createElement('button');
+    btnCan.innerText ="Can";
+    btnCan.addEventListener('click', notCompleted)
+    li.append(btnCan);
+    
+    btnEd =document.createElement('button');
+    btnEd.innerText ="ed";
+    btnEd.addEventListener('click', edit)
+    li.append(btnEd);
+    
+    btnDel =document.createElement('button');
+    btnDel.innerText = "del";
+    btnDel.addEventListener('click', del)
+    li.append(btnDel);
+    
+    list.appendChild(li);
+    
+
+
+    
+    }
+    
+    //В случае если человек подтвердил выполнение задания,меняем статус и удаляем кнопки кроме "удалить"
+    function completed(e)
+    {
+     let li = e.target.parentNode;
+     let ul = li.parentNode;
+     nodes =  li.childNodes;
+     for(let i =nodes.length-2;i>0;i--) 
+     {
+      el=nodes[i];
+
+         if(el.nodeName==="BUTTON")
+         {
+             li.removeChild(el);
+         }
+     }
+       nodes[1].innerText = "выполнено";
+    }
+    
+    //В случае если человек опроверг выполнение задания,меняем статус и удаляем кнопки кроме "удалить"
+     function notCompleted(e)
+    {
+      
+     let li = e.target.parentNode;
+     let ul = li.parentNode;
+     nodes =  li.childNodes;
+     for(let i =nodes.length-2;i>0;i--) 
+     {
+      el=nodes[i];
+     // alert(el.nodeName);
+         if(el.nodeName==="BUTTON")
+         {
+            // alert(el.nodeName)
+             li.removeChild(el);
+         }
+     }
+     //alert(nodes[0].innerText)
+     nodes[1].innerText = "не выполнено";
+    }
+    var cashSt;
+    //сохраняем статус и текст во временное хранилище,меняем наполнение на input с этим тектом для редактирования
+    function edit(e)
+    {
+    
+     let li = e.target.parentNode;
+     let ul = li.parentNode;
+     cashSt = li.childNodes[1].innerText;
+     value =  li.childNodes[0].innerText;
+     li.innerHTML = "";
+     inp = document.createElement("input");
+     inp.value =value;
+     inp.addEventListener("change",save)
+     inp.addEventListener("change",cancel)
+     li.appendChild(inp);
+    }
+    function cancel(e)
+    {
+
+    }
+    function save(e)
+    { 
+    let value = e.target.value;
+    
+    let li = e.target.parentNode;
+    li.innerHTML ="";
+    CreateLi(li,value,cashSt)
+    }
+    function del(e)
+    {
+     let li = e.target.parentNode;
+     let ul = li.parentNode;
+     ul.removeChild(li);
+    }
+    function CreateLi(li,valueText,valueStatus)
+    {
+      
+    text =document.createElement('div');
+    text.innerText= valueText;
+    li.append(text);
+    
+    statusa =document.createElement('div');
+    statusa.innerText= valueStatus;
+    li.append(statusa);
+    
+    btnOk=document.createElement('button');
+    btnOk.innerText = "ok";
+    btnOk.addEventListener('click', completed)
+    li.append(btnOk);
+    
+    btnCan =document.createElement('button');
+    btnCan.innerText ="Can";
+    btnCan.addEventListener('click', notCompleted)
+    li.append(btnCan);
+    
+    btnEd =document.createElement('button');
+    btnEd.innerText ="ed";
+    btnEd.addEventListener('click', edit)
+    li.append(btnEd);
+    
+    btnDel =document.createElement('button');
+    btnDel.innerText = "del";
+    btnDel.addEventListener('click', del)
+    li.append(btnDel);
+    }
+  </script>
+</head>
+<body>
+  <ul>
+    <li><input id="newTask"/></li>
+  </ul>
+  
+  
+</body>
+</html>
