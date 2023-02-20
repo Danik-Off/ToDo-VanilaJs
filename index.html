@@ -4,7 +4,19 @@
   <style>@import url(./s.css);</style>
 </head>
 <body>
-  <input class="new-todo" id="newTask"/>
+  <header>
+    <div class="inputDiv">
+    <button>\/</button>
+    <input class="new-todo" id="newTask">
+    </div>
+    <div>
+      <button onclick="filter('all')">Все</button>
+      <button onclick="filter('active')">Активные</button>
+      <button onclick="filter('completed')">Выполеные</button>
+    </div>
+    
+  </header>
+
   <ul id= "list">
     
   </ul>

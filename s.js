@@ -1,6 +1,7 @@
-var db;
-var openRequest;
-var mostId;
+﻿let db;
+let openRequest;
+let mostId =0;
+let allCompleted = false;
 window.onload = function () {
   let inp = document.getElementById("newTask");
   inp.addEventListener("change", addNew);
@@ -12,42 +13,103 @@ window.onload = function () {
 
   openRequest.onsuccess = function () {
     db = openRequest.result;
-    let transaction = db.transaction("tasks", "readwrite"); // (1)
-    // получить хранилище объектов для работы с ним
-    request = transaction.objectStore("tasks").getAll(); // (2)
-
-    request.onsuccess = function () {
-      // (4)
-      for (task of request.result) {
-        if (task.id > mostId) mostId = task.id;
-
-        e = { target: { value: "" } };
-        e.target.value = task.text;
-        addNew(e, task.status, false, task.id);
-      }
-    };
-
-    request.onerror = function () {
-      console.log("Ошибка", request.error);
-    };
+    loadTasks();
   };
   openRequest.onupgradeneeded = function () {
     let db = openRequest.result;
     if (!db.objectStoreNames.contains("tasks")) {
-      // если хранилище "books" не существует
       db.createObjectStore("tasks", { keyPath: "id" }); // создаём хранилище
     }
   };
 };
+function chooseAll()
+{
+  let list = document.getElementById("list");
+  let val;
+  if(allCompleted)
+  {
+     val =false;
+     allCompleted =false;
+  }
+  else
+  {
+     val =true;
+  }
+  for(nodeTask of list.children){ 
+   editSt({target:nodeTask.firstChild})
+  }
+}
+function filter(f)
+{
+  let list = document.getElementById("list");
+ for(nodeTask of list.children){
+   
+    switch(f)
+    {
+      case"active":
+      if(nodeTask.firstChild.checked)
+      {
+        nodeTask.style.display = ""
+      }
+      else
+      {
+        nodeTask.style.display = "none"
+      }
+        
+      break;
+      case"completed":
+      if(!nodeTask.firstChild.checked)
+      {
+        nodeTask.style.display = ""
+      }
+      else
+      {
+        nodeTask.style.display="none"
+      }
+        
+      break;
+      default:
+        nodeTask.style.display = ""
+        break;
+    }
+    
+  }
+}
+function loadTasks()
+{
+  let list = document.getElementById("list");
+  while(list.firstChild)
+  {
+    list.removeChild(list.firstChild )
+  }
+  let transaction = db.transaction("tasks", "readwrite"); // (1)
+  // получить хранилище объектов для работы с ним
+  request = transaction.objectStore("tasks").getAll(); // (2)
 
+  request.onsuccess = function () {
+    tasks = request.result;
+    for(task of tasks)
+    {
+      addNew({ target: { value: task.text } }, task.status, false, task.id);
+    }
+   
+  };
+
+  request.onerror = function () {
+    console.log("Ошибка", request.error);
+  };
+
+}
 function addNew(e, check = false, addToBD = true, id) {
+  console.log(mostId);
   let value = e.target.value;
   e.target.value = "";
   let list = document.getElementById("list");
-  id = (mostId + list.childNodes.length - 1).toString();
+  console.log(list.childNodes.length);
   li = document.createElement("li");
 
   if (addToBD) {
+    id = (+mostId + 1);
     let transaction = db.transaction("tasks", "readwrite"); // (1)
 
     // получить хранилище объектов для работы с ним
@@ -62,37 +124,21 @@ function addNew(e, check = false, addToBD = true, id) {
     let request = books.add(book); // (3)
 
     request.onsuccess = function () {
-      // (4)
-      console.log("Книга добавлена в хранилище", request.result);
+      console.log("Задача добавлена в бд ", request.result);
     };
 
     request.onerror = function () {
       console.log("Ошибка", request.error);
     };
   }
+ (mostId<id)? mostId = id:null;
   CreateLi(li, value, check, id);
   list.insertBefore(li, list.firstChild);
-}
-
-//В случае если человек подтвердил выполнение задания,меняем статус и удаляем кнопки кроме "удалить"
-function completed(e) {
-  let li = e.target.parentNode;
-  let ul = li.parentNode;
-  nodes = li.childNodes;
-  for (let i = nodes.length - 2; i > 0; i--) {
-    el = nodes[i];
-
-    if (el.nodeName === "BUTTON") {
-      li.removeChild(el);
-    }
-  }
-  nodes[1].innerText = "выполнено";
 }
 
 //сохраняем статус и текст во временное хранилище,меняем наполнение на input с этим тектом для редактирования
 function edit(e) {
   let li = e.target.parentNode;
-  let ul = li.parentNode;
   cashSt = li.childNodes[0].checked;
   value = li.childNodes[1].innerText;
   while (li.firstChild) {
@@ -105,14 +151,17 @@ function edit(e) {
   li.appendChild(inp);
   li.firstChild.focus();
 }
+
+
 cashValue = "";
 function editSt(e) {
+  
   let li = e.target.parentNode;
   let transaction = db.transaction("tasks", "readwrite"); // (1)
   // получить хранилище объектов для работы с ним
   tasks = transaction.objectStore("tasks");
   console.log(li.id.toString());
-  request = tasks.get(li.id); // (2)
+  request = tasks.get(+li.id); // (2)
   // tasks.clear();
   request.onsuccess = function () {
     let task = request.result;
@@ -126,12 +175,12 @@ function save(e) {
   let li = e.target.parentNode;
   cashValue = value;
   li.innerHTML = "";
-  CreateLi(li, value, cashSt, li.id);
+  CreateLi(li, value, cashSt, +li.id);
   let transaction = db.transaction("tasks", "readwrite"); // (1)
   // получить хранилище объектов для работы с ним
   tasks = transaction.objectStore("tasks");
   console.log(li.id.toString());
-  request = tasks.get(li.id); // (2)
+  request = tasks.get(+li.id); // (2)
   // tasks.clear();
   request.onsuccess = function () {
     let task = request.result;
@@ -152,17 +201,23 @@ function del(e) {
   let transaction = db.transaction("tasks", "readwrite"); // (1)
   // получить хранилище объектов для работы с ним
   tasks = transaction.objectStore("tasks");
-  request = tasks.delete(li.id); // (2)
+  request = tasks.delete(+li.id); // (2)
   // tasks.clear();
+
   request.onsuccess = function () {
-    let id = request.result;
-    console.log(id);
+    console.log("Задача удалена");
   };
 
   request.onerror = function () {
     console.log("Ошибка", request.error);
   };
+
+  transaction.oncomplete = function() {
+    console.log("Транзакция завершена успешно");
+  };
 }
+
+
 
 function CreateLi(li, valueText, check = false, id) {
   //console.log(id);
