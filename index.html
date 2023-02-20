@@ -1,26 +1,43 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <script src="./s.js">  </script>
-  <style>@import url(./s.css);</style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>@import url(./new.css);</style>
+    <script src="new.js"></script>
+    <title>Document</title>
 </head>
-<body>
-  <header>
-    <div class="inputDiv">
-    <button>\/</button>
-    <input class="new-todo" id="newTask">
-    </div>
-    <div>
-      <button onclick="filter('all')">Все</button>
-      <button onclick="filter('active')">Активные</button>
-      <button onclick="filter('completed')">Выполеные</button>
-    </div>
-    
-  </header>
+<body class="learn-bar"><aside class="learn">
+    <section class="todoapp">
+        <header class="header">
+            <h1>todos</h1>
+            <input class="new-todo" placeholder="What needs to be done?" autofocus="">
+        </header>
+        <section  class="main">
+            <input id="toggle-all" class="toggle-all" type="checkbox">
+            <label for="toggle-all">Mark all as complete</label>
+            <ul class="todo-list">
+</ul>
+            <footer class="footer">
+                <span class="todo-count">0 items left</span>
+                <ul class="filters">
+                    <li>
+                        <a href="#/" class="selected">All</a>
+                    </li>
+                    <li>
+                    <a href="#/active">Active</a>
+                    </li>
+                    <li>
+                    <a href="#/completed">Completed</a>
+                    </li>
+                </ul>
+                <button class="clear-completed" style="display: none;">Clear completed</button>
+            </footer>
+        </section>
+    </section>
 
-  <ul id= "list">
-    
-  </ul>
-  
-  
+
+
 </body>
 </html>

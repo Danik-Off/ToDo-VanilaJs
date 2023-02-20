@@ -2,6 +2,28 @@
 let openRequest;
 let mostId =0;
 let allCompleted = false;
+let countCompleted = 0;
+let com = 
+{
+  get countCompleted()
+  {
+
+  },
+  set countCompleted(d)
+  {
+    const list = document.getElementById("list");
+    countCompleted+=d;
+    console.log(countCompleted,list.children.length);
+    if(countCompleted === list.children.length)
+    {
+      console.log("выбраны все элементы");
+    }
+    else
+    {
+
+    }
+  }
+}
 window.onload = function () {
   let inp = document.getElementById("newTask");
   inp.addEventListener("change", addNew);
@@ -167,8 +189,17 @@ function editSt(e) {
     let task = request.result;
     console.log(task);
     task["status"] = !task.status;
+    if(task.status)
+    {
+     com.countCompleted = 1;
+    }
+    else
+    {
+      com.countCompleted = -1;
+    }
     tasks.put(task);
   };
+ 
 }
 function save(e) {
   let value = e.target.value;
