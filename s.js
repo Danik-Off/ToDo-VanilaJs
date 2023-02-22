@@ -27,6 +27,10 @@ let com =
 window.onload = function () {
   let inp = document.getElementById("newTask");
   inp.addEventListener("change", addNew);
+
+
+
+
   openRequest = indexedDB.open("store", 2);
 
   openRequest.onerror = function () {

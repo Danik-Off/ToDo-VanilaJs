@@ -6,13 +6,10 @@ let countCompleted = 0;
 let lengthTasks =0;
 let com = 
 {
-  get countCompleted()
-  {
-
-  },
   set countCompleted(d)
   {
     const list = document.getElementsByClassName("todo-list")[0];
+    const main = document.getElementsByClassName("main")[0];
     countCompleted+=d;
     const length = list.children.length;
     console.log(countCompleted,length);
@@ -37,6 +34,14 @@ let com =
     {
         document.getElementsByClassName(" clear-completed")[0].style.display="none";
     }
+    if(length<1)
+    {
+      document.getElementsByClassName("main")[0].style.display="none";
+    }
+    else
+    {
+      document.getElementsByClassName("main")[0].style.display="block";
+    }
   },
 
  
@@ -48,6 +53,11 @@ window.onload = function () {
   document.getElementById("toggle-all").addEventListener("click",chooseAll);
   document.getElementsByClassName(" clear-completed")[0].addEventListener("click",clearCompleted);
 
+  let filters = document.getElementsByClassName("filters")[0].children;
+  filters[0].addEventListener("click",()=>filter("all"));
+  filters[1].addEventListener("click",()=>filter("active"));
+  filters[2].addEventListener("click",()=>filter("completed"));
+
  let openRequest = indexedDB.open("store", 2);
 
   openRequest.onerror = function () {
@@ -57,6 +67,7 @@ window.onload = function () {
   openRequest.onsuccess = function () {
     db = openRequest.result;
     loadTasks();
+    
   };
   openRequest.onupgradeneeded = function () {
     let db = openRequest.result;
@@ -65,25 +76,20 @@ window.onload = function () {
     }
   };
 };
-window.addEventListener('hashchange', (e)=>{
-    const currentUrl = window.location.href;
-    const typeFilter = currentUrl.split('/').slice(-1)[0];
-    filter(typeFilter);
-    console.log(typeFilter);
-    })
-function loadTas()
-{
-    
-}
+ 
+
 function clearCompleted()
 {
     let list = document.getElementsByClassName("todo-list")[0];
-    for(li of list.childNodes)
-    {
+   while(countCompleted)
+    {   
+      let li = list.firstChild;
       let checkBox = li.firstChild.firstChild;
        if(checkBox.checked)
        {
+        console.log(li);
          del({target:checkBox});
+
        }
     }
 }
@@ -115,8 +121,9 @@ function chooseAll()
    editSt({target:checkBox},val)
   }
 }
-function filter(f)
+function filter(f="all")
 {
+  f = (f)?f:"all";
   let list = document.getElementsByClassName("todo-list")[0];
   let filters = document.getElementsByClassName("filters")[0].children;
     filters[0].firstElementChild.setAttribute("class","");
@@ -130,7 +137,7 @@ function filter(f)
       case"completed":
       filters[2].firstElementChild.setAttribute("class","selected");
       break;
-      default:
+      case"all":
         filters[0].firstElementChild.setAttribute("class","selected");
         break;
     }
@@ -163,7 +170,7 @@ function filter(f)
       }
         
       break;
-      default:
+      case"all":
         nodeTask.style.display = ""
         break;
     }
@@ -188,9 +195,18 @@ function loadTasks()
        
       addNew({ target: { value: task.text } }, task.status, false, task.id);
       if(task.status)
+      {
         countCompleted+=1;
+        li.setAttribute("class","completed");
+      }
+       
+     
+       
     }
     com.countCompleted = 0;
+    const currentUrl = window.location.href;
+    const typeFilter = currentUrl.split('/').slice(-1)[0];
+    filter(typeFilter);
   };
 
   request.onerror = function () {
@@ -250,8 +266,9 @@ function editSt(e,check=null) {
     let request = tasks.get(+li.id); 
     request.onsuccess = function () {
       let task = request.result;
-      console.log(task);
+      console.log(task.status);
       task["status"] = (check!==null)?check:!task.status;
+      console.log(task.status);
       if(task.status)
       {
        com.countCompleted = 1;
@@ -315,8 +332,12 @@ function save(e) {
 }
 
 function del(e) {
-  let li = e.target.parentNode.parentNode;
+  let view = e.target.parentNode;
+  let li = view.parentNode;
   let ul = li.parentNode;
+  let checkBox = view.firstChild;
+  const isCompleted =   checkBox.checked
+  
   ul.removeChild(li);
   let transaction = db.transaction("tasks", "readwrite");
 
@@ -330,7 +351,11 @@ function del(e) {
   request.onerror = function () {
     console.log("Ошибка", request.error);
   };
-
+  if(isCompleted)
+  {
+    com.countCompleted = -1;
+    console.log(countCompleted)
+  }
 }
 
 
@@ -349,6 +374,7 @@ function createView(text,checked)
   let label = document.createElement("label")
   label.innerText =text;
   label.addEventListener("dblclick",edit)
+  
   view.appendChild(label);
 
   let destroy = document.createElement("button");
