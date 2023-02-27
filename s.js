@@ -27,7 +27,7 @@ let com =
 window.onload = function () {
   let inp = document.getElementById("newTask");
   inp.addEventListener("change", addNew);
-
+  
 
 
 
