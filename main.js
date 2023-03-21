@@ -1,5 +1,5 @@
 const openRequest = indexedDB.open("todoDB", 1);
-let db;
+
 openRequest.onupgradeneeded = () => {
   db = openRequest.result;
   if (!db.objectStoreNames.contains("books")) {
@@ -14,33 +14,47 @@ openRequest.onsuccess = () => {
 
 window.onload = () => {
   const inputNewToDo = document.querySelector(".new-todo");
-  inputNewToDo.addEventListener("blur", addNewTask);
-  openRequest.onsuccess = () => {};
+  inputNewToDo.addEventListener("change", addNewTask);
+  openRequest.onsuccess = loadTasks;
 };
 
+function loadTasks() {}
+
 function addNewTask(e) {
-  const text = e.value;
+  const todoList = document.querySelector(".todo-list");
+  const text = e.target.value;
   const id = 0;
   const sampleTask = `<li data-id="${id}">
 	                    <div class="view">
-		                  <input class="toggle" type="checkbox">
-		                  <label>${text}</label>
+		                  <input class="toggle" type="checkbox"/>
+		                  <label class="text">${text}</label>
 		                  <button class="destroy"></button>
 	                    </div>
                       </li>`;
   const tempVar = document.createElement("div");
+  const inputNewToDo = document.querySelector(".new-todo");
+  inputNewToDo.value = "";
+
   tempVar.innerHTML = sampleTask;
   const domElementTask = tempVar.firstChild;
-  //domElementTask.addEventListener();
-  
+  domElementTask.addEventListener("click", hadlerTask);
+  todoList.insertBefore(domElementTask, todoList.firstChild);
 }
 
-function hadlerTask(e)
-{
+function hadlerTask(e) {
   const task = e.currentTarget;
-  alert(this);
+  const element = e.target;
+  console.log(task, element.className);
+  if (element.className === "destroy") deleteTask(e);
+  if (element.className === "toggle") updateStatusTask(e);
+  if (element.className === "text") editTask(e);
 }
+
+function updateStatusTask() {}
 
 function editTask() {}
 
-function deleteTask() {}
+function deleteTask(e) {
+  const task = e.currentTarget;
+  task.parentNode.removeChild(task);
+}
